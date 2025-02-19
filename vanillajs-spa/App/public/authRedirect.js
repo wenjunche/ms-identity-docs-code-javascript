@@ -9,11 +9,18 @@ let username = "";
  * response returned from redirect flow. For more information, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/initialization.md#redirect-apis
  */
-myMSALObj.handleRedirectPromise()
-    .then(handleResponse)
-    .catch((error) => {
-        console.error(error);
-    });
+// myMSALObj.handleRedirectPromise()
+//     .then(handleResponse)
+//     .catch((error) => {
+//         console.error(error);
+//     });
+
+async function init() {
+    const response = await myMSALObj.handleRedirectPromise();
+    handleResponse(response);    
+}
+
+init();
 
 function selectAccount() {
 
@@ -29,15 +36,17 @@ function selectAccount() {
     } else if (currentAccounts.length > 1) {
         // Add your account choosing logic here
         console.warn("Multiple accounts detected.");
+        return currentAccounts[0];
     } else if (currentAccounts.length === 1) {
         username = currentAccounts[0].username
         welcomeUser(currentAccounts[0].username);
         updateTable(currentAccounts[0]);
+        return currentAccounts[0];
     }
 }
 
 function handleResponse(response) {
-
+    let activeAccount;
     /**
      * To see the full list of response object properties, visit:
      * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/request-response-object.md#response
@@ -47,8 +56,9 @@ function handleResponse(response) {
         username = response.account.username
         welcomeUser(username);
         updateTable(response.account);
+        activeAccount = response.account;
     } else {
-        selectAccount();
+        activeAccount = selectAccount();
 
         /**
          * If you already have a session that exists with the authentication server, you can use the ssoSilent() API
@@ -67,6 +77,7 @@ function handleResponse(response) {
         //         }
         //     });
     }
+    getAccessToken(activeAccount);
 }
 
 function signIn() {
@@ -94,4 +105,44 @@ function signOut() {
     };
 
     myMSALObj.logoutRedirect(logoutRequest);
+}
+
+function getAccessToken(account) {
+    myMSALObj.acquireTokenSilent({...loginRequest, account}).then(response => {
+        console.log('token response', response);
+        const accessToken = response.accessToken;
+        sendEmail(accessToken);
+    });
+}
+
+async function sendEmail(accessToken) {
+    const email = {
+        message: {
+            subject: 'Hello from Vanilla JavaScript',
+            body: {
+                contentType: 'TEXT', // 'HTML',
+                content: 'This is a test email sent from Vanilla JavaScript.'
+            },
+            toRecipients: [
+                {
+                emailAddress: {
+                    address: 'wenjun@here.io'
+                }
+                }
+            ]
+        }
+    };
+    try {
+      const response = await fetch('https://graph.microsoft.com/v1.0/me/sendMail', {
+        method: "POST",
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(email),
+      });
+      console.log('Email sent successfully:', response.data);
+    } catch (error) {
+      console.error('Error sending email:', error);
+    }
 }

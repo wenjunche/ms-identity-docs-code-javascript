@@ -1,4 +1,5 @@
 // Create the main myMSALObj instance
+
 // configuration parameters are located at authConfig.js
 const myMSALObj = new msal.PublicClientApplication(msalConfig);
 
@@ -16,8 +17,9 @@ let username = "";
 //     });
 
 async function init() {
+    await myMSALObj.initialize();
     const response = await myMSALObj.handleRedirectPromise();
-    handleResponse(response);    
+    handleResponse(response);
 }
 
 init();
@@ -108,11 +110,15 @@ function signOut() {
 }
 
 function getAccessToken(account) {
-    myMSALObj.acquireTokenSilent({...loginRequest, account}).then(response => {
-        console.log('token response', response);
-        const accessToken = response.accessToken;
-        sendEmail(accessToken);
-    });
+    if (account) {
+        myMSALObj.acquireTokenSilent({...loginRequest, account}).then(response => {
+            console.log('token response', response);
+            const accessToken = response.accessToken;
+            // sendEmail(accessToken);
+        });
+    } else {
+        myMSALObj.loginRedirect(loginRequest);
+    }
 }
 
 async function sendEmail(accessToken) {

@@ -5,7 +5,7 @@
  */
 const msalConfig = {
     auth: {
-        clientId: "1ade5620-60da-450b-8100-e5ac80db97e8",
+        clientId: "d7774350-f076-4237-b836-147f56c25e77",
         authority: "https://login.microsoftonline.com/051d23bf-9257-4c0c-b503-512ae19844dc",
         redirectUri: "http://localhost:3000",
         // EXTERNAL TENANT
@@ -49,6 +49,15 @@ const msalConfig = {
  */
 const loginRequest = {
     scopes: ["User.Read", "Mail.Read", "Mail.Send" ],
+    extraQueryParameters: {
+        custom_browser_key: "HereEnterpriseBrowser"
+    },
+    claims: JSON.stringify({
+        id_token: {
+            "xms_cc": { "values": ["CP1"] }, // Client Capability 1
+            "custom_browser_tag": { "value": "HereEnterpriseBrowser" }
+        }
+    })    
 };
 
 /**

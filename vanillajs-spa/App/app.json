@@ -1,0 +1,17 @@
+{
+  "runtime": {
+    "version": "stable",
+    "arguments": "--security-realm=test-with-extension --enable-mesh"
+  },
+  "extensions": [
+    {
+      "id": "ppnbnpeolgkicgegkbkbjmhlideopiji",
+      "serverURL": "https://clients2.google.com/service/update2/crx"
+    }
+  ],
+  "startup_app": {
+    "uuid": "app3-with-extension",
+	"url": "https://here.io",
+    "autoShow": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+    "desktopSettings": {
+        "extensionServerURLs": [
+            "https://clients2.google.com/service/update2/crx",
+            "https://clients2.google.com"
+        ]
+    },
+    "applicationSettings": {
+        "default": {
+            "permissions": {
+                "System": {
+                    "launchExternalProcess": true
+                }
+            }
+        }
+      }
+}
